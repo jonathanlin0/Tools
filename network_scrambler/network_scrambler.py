@@ -85,8 +85,8 @@ def get_links():
 
     return links
 
-# process command line arguments for python
-if len(sys.argv) == 1:
+# process command line arguments
+if len(sys.argv) != 2:
     usage()
 
 total_runs = 0
@@ -101,10 +101,19 @@ if total_runs == 0:
 
 links = get_links()
 
+# get a list of random user agents
+r = requests.get("https://glasstea0.pythonanywhere.com/User-Agents/")
+user_agents = r.json()["User-Agents"]
+
+# read in provided proxies from proxies.txt
+f = open(os.path.dirname(__file__) + "/proxies.txt")
+all_proxies = f.read().splitlines()
+f.close()
+
 links_index = 0
 for i in range(total_runs):
     
-    # if the index 
+    # if the index is past the length of all the links
     if links_index >= len(links):
 
         # reset the links_index to the beginning
@@ -113,18 +122,36 @@ for i in range(total_runs):
         # refresh the random links list
         links = get_links()
     
-    # send a request to the random link
-    r = requests.get(links[links_index])
+    # pick random User-Agent
+    headers = {
+        "User-Agent": random.choice(user_agents)
+    }
 
-    # log the request
-    f = open(os.path.dirname(__file__) + "/requested_links.txt", "a")
-    f.write(links[links_index] + "\n" + str(time.time()) + "\n")
-    print("Visited: " + links[links_index])
+    # pick a random proxy
+    proxy = random.choice(all_proxies)
+    proxies = {
+        'http': 'http://' + proxy,
+        'https': 'http://' + proxy,
+    }
 
-    # log any unusual codes
-    if "200" not in str(r):
-        f = open(os.path.dirname(__file__) + "/unusual_codes.txt", "a")
-        f.write(links[links_index] + "\n" + str(r) + "\n")
-        f.close()
+    try:
+        # send a request to the random link
+        r = requests.get(links[links_index], headers = headers, proxies = proxies, timeout = 3)
 
-    links_index += 1
+        # log the request
+        f = open(os.path.dirname(__file__) + "/requested_links.txt", "a")
+        f.write(links[links_index] + "\n" + str(time.time()) + "\n")
+        print("")
+        print("Proxy: " + proxy)
+        print("User-Agent: " + headers["User-Agent"])
+        print("URL: " + links[links_index])
+
+        # log any unusual codes
+        if "200" not in str(r):
+            f = open(os.path.dirname(__file__) + "/unusual_codes.txt", "a")
+            f.write(links[links_index] + "\n" + str(r) + "\n")
+            f.close()
+
+        links_index += 1
+    except:
+        print("error")
