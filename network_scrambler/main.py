@@ -27,20 +27,31 @@ except:
 
 print("Sending " + str(processes * iterations_per_window) + " randomized requests...")
 
-pp = []
+#hi = subprocess.Popen(["python3", os.getcwd() + '/network_scrambler/test.py', str(processes), str(iterations_per_window)])
+
+sb = []
 
 for i in range(processes):
 
     #ls_output = subprocess.Popen(["python3", os.path.dirname(__file__) + "/test.py"])
 
     #ls_output = subprocess.Popen(["python3", os.getcwd() + '/network_scrambler/network_scrambler.py', str(iterations_per_window)])
-
-    pp.append(subprocess.call(["python3", os.getcwd() + '/network_scrambler/test.py']))
+    sb.append(subprocess.Popen(["python3", os.getcwd() + '/network_scrambler/network_scrambler.py', str(iterations_per_window)]))
+    # subprocess.call(["python3", os.getcwd() + '/network_scrambler/test.py', str(processes), str(iterations_per_window)])
 
     #tell.app( 'Terminal', 'do script "' + cmd + " " + str(iterations_per_window) + '"')
 
 # exit_codes = [p.wait() for p in pp]
 
-sleep(5)
-print(pp)
-print("done")
+sleep(3)
+while True:
+    sleep(2)
+    
+    complete = True
+    for i in sb:
+        if i.wait() != 0:
+            complete = False
+    
+    if complete == True:
+        print("Successfully sent " + str(processes * iterations_per_window) + " random requests.")
+        exit()
