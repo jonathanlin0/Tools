@@ -22,6 +22,8 @@ except:
     print("Error: The given input is not an integer.")
     exit()
 
+print("Sending " + str(processes * iterations_per_window) + " randomized requests...")
+
 for i in range(processes):
 
     tell.app( 'Terminal', 'do script "' + cmd + " " + str(iterations_per_window) + '"')

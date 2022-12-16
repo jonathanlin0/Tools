@@ -134,6 +134,8 @@ for i in range(total_runs):
         'https': 'http://' + proxy,
     }
 
+    print("")
+
     try:
         # send a request to the random link
         r = requests.get(links[links_index], headers = headers, proxies = proxies, timeout = 3)
@@ -141,7 +143,7 @@ for i in range(total_runs):
         # log the request
         f = open(os.path.dirname(__file__) + "/requested_links.txt", "a")
         f.write(links[links_index] + "\n" + str(time.time()) + "\n")
-        print("")
+
         print("Proxy: " + proxy)
         print("User-Agent: " + headers["User-Agent"])
         print("URL: " + links[links_index])
