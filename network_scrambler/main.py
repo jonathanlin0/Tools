@@ -1,5 +1,8 @@
 from applescript import tell
 import os
+import subprocess
+from time import sleep
+import time
 
 #set what command you want to run here
 cmd = 'python3 ' + os.getcwd() + '/network_scrambler/network_scrambler.py'
@@ -24,6 +27,20 @@ except:
 
 print("Sending " + str(processes * iterations_per_window) + " randomized requests...")
 
+pp = []
+
 for i in range(processes):
 
-    tell.app( 'Terminal', 'do script "' + cmd + " " + str(iterations_per_window) + '"')
+    #ls_output = subprocess.Popen(["python3", os.path.dirname(__file__) + "/test.py"])
+
+    #ls_output = subprocess.Popen(["python3", os.getcwd() + '/network_scrambler/network_scrambler.py', str(iterations_per_window)])
+
+    pp.append(subprocess.call(["python3", os.getcwd() + '/network_scrambler/test.py']))
+
+    #tell.app( 'Terminal', 'do script "' + cmd + " " + str(iterations_per_window) + '"')
+
+# exit_codes = [p.wait() for p in pp]
+
+sleep(5)
+print(pp)
+print("done")
