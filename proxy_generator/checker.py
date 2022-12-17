@@ -47,4 +47,5 @@ for i in range(starting_index - 1, starting_index + num - 1):
             f.write(all_ips[i] + "\n")
             f.close()
     except:
-        print("error")
+        #print("error: " + all_ips[i])
+        hi = 0
