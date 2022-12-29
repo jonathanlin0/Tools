@@ -26,6 +26,8 @@ This program can automatically fill out Google Forms for you.
 
 Please ensure your chromedriver in `form_filler/chromedriver` is up-to-date. To download the latest chromedriver, visit [here](https://chromedriver.chromium.org/downloads). For more information on chromedriver, please visit [here](https://chromedriver.chromium.org/).
 
+Note: chromedriver is utilized for initial data form collection. The program uses Requests to fill out Google Forms, not Selenium or any other form of browser testing.
+
 ## network_scrambler
 
 ### Function
