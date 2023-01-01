@@ -3,6 +3,7 @@ import os
 from time import sleep
 import subprocess
 
+print("All proxies collected are anonymous or elite level.")
 print("How many threads would you like?")
 print("Recommendations:")
 print("    50 - low end laptop")
@@ -15,6 +16,8 @@ try:
 except:
     print("Error: You must input an integer for the number of windows.")
     exit()
+
+import scrapper
 
 # read in all the untested ips
 f = open(os.path.dirname(__file__) + "/untested_ips.txt")
@@ -49,11 +52,14 @@ while True:
     
     complete = True
     for i in sb:
-        if i.wait() != 0:
-            errors.append(i.wait())
-            complete = False
+        errors.append(i.wait())
+        #complete = False
     
     if complete == True:
-        print("There were " + str(len(errors)) + " errors.")
+        cnt = 0
+        for e in errors:
+            if e != 0:
+                cnt += 1
+        print("There were " + str(cnt) + " errors.")
         print("Completed")
         exit()

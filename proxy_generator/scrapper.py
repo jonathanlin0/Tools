@@ -23,7 +23,15 @@ def collect_1():
     ips = []
 
     for row in table_rows:
-        ips.append(row.findChildren()[0].getText())
+        
+        cur_children = row.findChildren()
+
+        proxy_anon = cur_children[4].getText()
+        proxy_ip = cur_children[0].getText()
+        proxy_port = cur_children[1].getText()
+
+        if "transparent" not in proxy_anon:
+            ips.append(proxy_ip + ":" + proxy_port)
     
     print("Collected " + str(len(ips)) + " proxies from https://free-proxy-list.net/")
 
@@ -34,7 +42,7 @@ def collect_2():
 
     print("Collecting proxies from https://proxyscrape.com/")
 
-    r = requests.get("https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=all")
+    r = requests.get("https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=anonymous,elite")
 
     ips = r.text.splitlines()
 
@@ -42,7 +50,7 @@ def collect_2():
 
     return ips
 
-# proxies collected from https://www.geonode.com/free-proxy-list/
+# proxies scraped from https://www.geonode.com/free-proxy-list/
 # ROOM FOR EXPANSION
 def collect_3():
     # anonymity level: elite, anonymous
@@ -54,14 +62,18 @@ def collect_3():
         "https://proxylist.geonode.com/api/proxy-list?limit=500&page=2&sort_by=lastChecked&sort_type=desc&anonymityLevel=elite&anonymityLevel=anonymous",
         "https://proxylist.geonode.com/api/proxy-list?limit=500&page=3&sort_by=lastChecked&sort_type=desc&anonymityLevel=elite&anonymityLevel=anonymous",
         "https://proxylist.geonode.com/api/proxy-list?limit=500&page=4&sort_by=lastChecked&sort_type=desc&anonymityLevel=elite&anonymityLevel=anonymous",
-        "https://proxylist.geonode.com/api/proxy-list?limit=500&page=5&sort_by=lastChecked&sort_type=desc&anonymityLevel=elite&anonymityLevel=anonymous"
+        "https://proxylist.geonode.com/api/proxy-list?limit=500&page=5&sort_by=lastChecked&sort_type=desc&anonymityLevel=elite&anonymityLevel=anonymous",
+        "https://proxylist.geonode.com/api/proxy-list?limit=500&page=6&sort_by=lastChecked&sort_type=desc&anonymityLevel=elite&anonymityLevel=anonymous",
+        "https://proxylist.geonode.com/api/proxy-list?limit=500&page=7&sort_by=lastChecked&sort_type=desc&anonymityLevel=elite&anonymityLevel=anonymous",
+        "https://proxylist.geonode.com/api/proxy-list?limit=500&page=8&sort_by=lastChecked&sort_type=desc&anonymityLevel=elite&anonymityLevel=anonymous",
+        "https://proxylist.geonode.com/api/proxy-list?limit=500&page=9&sort_by=lastChecked&sort_type=desc&anonymityLevel=elite&anonymityLevel=anonymous",
     ]
 
     responses = []
 
     for i in range(len(links)):
         print("Collecting proxies from page " + str(i + 1) + " of https://www.geonode.com/free-proxy-list/")
-        responses.append(requests.get(links[i]))
+        responses.append(requests.get(links[i], timeout = 2))
 
     for response in responses:
 
@@ -75,42 +87,31 @@ def collect_3():
 
     return ips
 
-# proxies collected from https://hidemy.name/en
-# ROOM FOR EXPANSION
+# proxies scraped from https://www.proxy-list.download/
 def collect_4():
+
+    links = [
+        "https://www.proxy-list.download/api/v1/get?type=http&anon=elite&country=US",
+        "https://www.proxy-list.download/api/v1/get?type=https&anon=elite&country=US",
+        "https://www.proxy-list.download/api/v1/get?type=socks4&anon=elite&country=US",
+        "https://www.proxy-list.download/api/v1/get?type=socks5&anon=elite&country=US",
+        "https://www.proxy-list.download/api/v1/get?type=http&anon=anonymous&country=US",
+        "https://www.proxy-list.download/api/v1/get?type=https&anon=anonymous&country=US",
+        "https://www.proxy-list.download/api/v1/get?type=socks4&anon=anonymous&country=US"
+        "https://www.proxy-list.download/api/v1/get?type=socks5&anon=anonymous&country=US"
+    ]
 
     ips = []
 
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
-    }
+    for link in links:
 
-    links = [
-        "https://hidemy.name/en/proxy-list/#list",
-        "https://hidemy.name/en/proxy-list/?start=64#list",
-        "https://hidemy.name/en/proxy-list/?start=128#list",
-        "https://hidemy.name/en/proxy-list/?start=192#list",
-        "https://hidemy.name/en/proxy-list/?start=256#list",
-    ]
+        r = requests.get(link)
+        s = BeautifulSoup(r.content, 'html.parser')
 
-    responses = []
-
-    for i in range(len(links)):
-        print("Collecting proxies from page " + str(i + 1) + " of https://hidemy.name/en")
-        responses.append(requests.get(links[i], headers = headers))
-
-    for response in responses:
-        s = BeautifulSoup(response.content, 'html.parser')
-
-        ip_table = s.find("div", {"class":"table_block"})
-
-        table_rows = list(ip_table.findChildren('tr'))
-        
-        for ele in table_rows:
-            ips.append(ele.findChildren()[0].getText())
+        curr_ips = str(s).splitlines()
+        if len(curr_ips) > 0:
+            ips = ips + curr_ips
     
-    print("Collected " + str(len(ips)) + " proxies from https://hidemy.name/en")
-
     return ips
 
 # proxies scraped from https://spys.one/en/free-proxy-list/
@@ -137,13 +138,42 @@ def collect_5():
         row = ele.findChildren('td')
 
         if len(row) > 0 and len(ele.findChildren('font')) > 0:
-            ips.append(row[0].getText())
+            proxy_anon = row[2].getText()
+
+            if proxy_anon == "ANM":
+                ips.append(row[0].getText())
     
     print("Collected " + str(len(ips)) + " proxies from https://spys.one/en/free-proxy-list/")
 
     return ips
     
-all_ips = all_ips + collect_1() + collect_2() + collect_3() + collect_4() + collect_5()
+print(collect_4())
+sleep(56)
+
+# try each method
+try:
+    all_ips = all_ips + collect_1()
+except Exception as e:
+    print(e)
+    print("Error: collect_1() failed")
+
+try:
+    all_ips = all_ips + collect_2()
+except Exception as e:
+    print(e)
+    print("Error: collect_2() failed")
+
+try:
+    all_ips = all_ips + collect_3()
+except Exception as e:
+    print(e)
+    print("Error: collect_3() failed")
+
+try:
+    all_ips = all_ips + collect_5()
+except Exception as e:
+    print(e)
+    print("Error: collect_5() failed")
 
 # convert list of all_ips to string
 out = ""
