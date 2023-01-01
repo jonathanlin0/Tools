@@ -62,4 +62,16 @@ while True:
                 cnt += 1
         print("There were " + str(cnt) + " errors.")
         print("Completed")
+
+        # remove the last line of working_proxies.txt
+        f = open(os.path.dirname(__file__) + "/working_proxies.txt", 'r')
+        text = f.read()
+        f.close()
+
+        text = text[:-1]
+
+        f = open(os.path.dirname(__file__) + "/working_proxies.txt", 'w')
+        f.write(text)
+        f.close()
+
         exit()

@@ -53,6 +53,8 @@ def collect_2():
 # proxies scraped from https://www.geonode.com/free-proxy-list/
 # ROOM FOR EXPANSION
 def collect_3():
+
+    print("Collecting proxies from https://www.geonode.com/free-proxy-list/")
     # anonymity level: elite, anonymous
 
     ips = []
@@ -90,6 +92,8 @@ def collect_3():
 # proxies scraped from https://www.proxy-list.download/
 def collect_4():
 
+    print("Collecting proxies from https://www.proxy-list.download/")
+
     links = [
         "https://www.proxy-list.download/api/v1/get?type=http&anon=elite&country=US",
         "https://www.proxy-list.download/api/v1/get?type=https&anon=elite&country=US",
@@ -112,10 +116,15 @@ def collect_4():
         if len(curr_ips) > 0:
             ips = ips + curr_ips
     
+    print("Collected " + str(len(ips)) + " proxies from https://www.proxy-list.download/")
+
     return ips
 
 # proxies scraped from https://spys.one/en/free-proxy-list/
 def collect_5():
+
+    print("Collecting proxies from https://spys.one/en/free-proxy-list/")
+
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
     }
@@ -147,8 +156,37 @@ def collect_5():
 
     return ips
     
-print(collect_4())
-sleep(56)
+# proxies scraped from https://www.socks-proxy.net/
+def collect_6():
+    print("Collecting proxies from https://www.socks-proxy.net/")
+
+    r = requests.get("https://www.socks-proxy.net/")
+    s = BeautifulSoup(r.content, 'html.parser')
+
+    ip_table = s.find("table", {"class":"table table-striped table-bordered"})
+
+    table_rows = list(ip_table.findChildren('tr'))
+    
+    # removes the head of the table
+    table_rows.pop(0)
+
+    ips = []
+
+    for row in table_rows:
+        
+        cur_children = row.findChildren()
+
+        proxy_anon = cur_children[4].getText()
+        proxy_ip = cur_children[0].getText()
+        proxy_port = cur_children[1].getText()
+
+        if "transparent" not in proxy_anon:
+            ips.append(proxy_ip + ":" + proxy_port)
+    
+    print("Collected " + str(len(ips)) + " proxies from https://www.socks-proxy.net/")
+
+    return ips
+
 
 # try each method
 try:
@@ -170,10 +208,22 @@ except Exception as e:
     print("Error: collect_3() failed")
 
 try:
+    all_ips = all_ips + collect_4()
+except Exception as e:
+    print(e)
+    print("Error: collect_4() failed")
+
+try:
     all_ips = all_ips + collect_5()
 except Exception as e:
     print(e)
     print("Error: collect_5() failed")
+
+try:
+    all_ips = all_ips + collect_6()
+except Exception as e:
+    print(e)
+    print("Error: collect_6() failed")
 
 # convert list of all_ips to string
 out = ""
