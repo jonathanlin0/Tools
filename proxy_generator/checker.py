@@ -39,7 +39,7 @@ for i in range(starting_index - 1, starting_index + num - 1):
 
     try:
         print("trying ip " + all_ips[i])
-        r = requests.get("https://www.google.com/", proxies = proxies, timeout = 1)
+        r = requests.get("https://www.google.com/", proxies = proxies, timeout = 2)
 
         if "200" in str(r):
             print("200: " + all_ips[i])

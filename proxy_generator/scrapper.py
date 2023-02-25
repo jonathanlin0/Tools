@@ -1,3 +1,4 @@
+from signal import SIG_DFL
 from bs4 import BeautifulSoup
 import requests
 from time import sleep
@@ -187,6 +188,97 @@ def collect_6():
 
     return ips
 
+# proxies scrapped from https://premiumproxy.net/elite-proxy-list
+def collect_8():
+
+    print("Collecting proxies from https://premiumproxy.net/elite-proxy-list")
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+    }
+
+    r = requests.get("https://premiumproxy.net/elite-proxy-list", headers = headers)
+    s = BeautifulSoup(r.content, 'html.parser')
+
+    ip_rows = s.find_all("tr", {"class":"pp1x"})
+    ip_rows.pop(0)
+    ip_rows.pop(0)
+
+    for i in range(7):
+        ip_rows.pop(len(ip_rows) - 1)
+
+    ips = []
+
+    for ip in ip_rows:
+        ips.append(ip.findChildren()[0].getText())
+    
+
+    print("Collected " + str(len(ips)) + " proxies from https://premiumproxy.net/elite-proxy-list")
+
+    return ips
+
+# proxies scrapped from https://www.my-proxy.com/
+def collect_10():
+
+    print("Collecting proxies from https://www.my-proxy.com/")
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+    }
+
+    links = [
+        "https://www.my-proxy.com/free-anonymous-proxy.html",
+        "https://www.my-proxy.com/free-elite-proxy.html"
+    ]
+
+
+    ips = []
+    for link in links:
+        try:
+            r = requests.get(link, headers = headers)
+            s = BeautifulSoup(r.content, 'html.parser')
+
+            table = s.find("div", {"class":"list"})
+
+            ips = ips + table.getText(strip=True, separator='\n').splitlines()
+        except:
+            hi = 2
+
+    print("Collected " + str(len(ips)) + " proxies from https://www.my-proxy.com/")
+
+    return ips
+
+# not working
+def collect_9():
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+    }
+
+    r = requests.get("https://premproxy.com/list/02.htm", headers = headers)
+    s = BeautifulSoup(r.content, 'html.parser')
+
+    ip_obj = s.find_all("td", {"data-label":"IP:port "})
+
+    for ip in ip_obj:
+        #print(s.find_all("span", {"class":"IP:port "}))
+        print(ip.find('input')["value"])
+
+        second_half = ip.find('input')["value"][ip.find('input')["value"].find("|"): len(ip.find('input')["value"])]
+        print(ip.find("span", {"class":second_half}))
+
+# not working
+def collect_7():
+    
+    r = requests.get("https://www.proxynova.com/proxy-server-list/elite-proxies/")
+    s = BeautifulSoup(r.content, 'html.parser')
+
+    ip_table = s.find("table", {"class":"table"})
+
+    children = ip_table.findChildren('tr')
+
+    for child in children:
+        print(child.findChildren()[0].getText())
 
 # try each method
 try:
@@ -224,6 +316,18 @@ try:
 except Exception as e:
     print(e)
     print("Error: collect_6() failed")
+
+try:
+    all_ips = all_ips + collect_8()
+except Exception as e:
+    print(e)
+    print("Error: collect_8() failed")
+
+try:
+    all_ips = all_ips + collect_10()
+except Exception as e:
+    print(e)
+    print("Error: collect_10() failed")
 
 # convert list of all_ips to string
 out = ""
