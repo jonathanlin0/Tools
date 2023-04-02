@@ -42,4 +42,18 @@ This program sends random requests.
 This program searches the internet for proxies. After collecting a few thousand proxies, it then uses the proxies to ping Google (with a timeout of 1 second) to check them.
 
 ### Usage:
-`python3 proxy_generator/main.py`
+
+Ensure that the proxy\_generator folder is in the same directory as the file(s) that you want to use the proxy\_generator package
+
+```python
+from proxy_generator import proxy_gen
+
+# create the proxy generator object
+obj = proxy_gen.proxy_gen()
+
+# scrape the internet for proxies
+obj.scrape()
+
+# check the proxies that were previously collected
+obj.check()
+```
